@@ -1,5 +1,6 @@
 using ReactiveUI.Fody.Helpers;
 using SS14.Launcher.Api;
+using SS14.Launcher.Models.Data;
 
 namespace SS14.Launcher.ViewModels.Login;
 
@@ -8,6 +9,7 @@ public class ResendConfirmationViewModel : BaseLoginViewModel
     private readonly AuthApi _authApi;
 
     [Reactive] public string EditingEmail { get; set; } = "";
+    [Reactive] public string EditingPrimaryAuthServer { get; set; } = SanabiAuthManager.DefaultEnterableAuthUrl;
 
     private bool _errored;
 
@@ -25,14 +27,14 @@ public class ResendConfirmationViewModel : BaseLoginViewModel
         try
         {
             BusyText = "Resending email...";
-            var errors = await _authApi.ResendConfirmationAsync(EditingEmail);
+            var errors = await _authApi.ResendConfirmationAsync(EditingEmail, SanabiAuthManager.LazilyGetInfoFromUrl(EditingPrimaryAuthServer));
 
             _errored = errors != null;
 
             if (!_errored)
             {
                 // This isn't an error lol but that's what I called the control.
-                OverlayControl = new AuthErrorsOverlayViewModel(this, "Confirmation email sent", new []
+                OverlayControl = new AuthErrorsOverlayViewModel(this, "Confirmation email sent", new[]
                 {
                     "A confirmation email has been sent to your email address."
                 });

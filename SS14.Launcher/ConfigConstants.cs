@@ -30,6 +30,9 @@ public static class ConfigConstants
 
     private static readonly UrlFallbackSetStats StatsHubInfra = new(2);
 
+    /// <summary>
+    ///     DEFAULT auth URL
+    /// </summary>
     public static readonly UrlFallbackSet AuthUrl = new(["https://auth.spacestation14.com/", "https://auth.fallback.spacestation14.com/"], StatsHubInfra);
 
     /// <summary>

@@ -17,10 +17,12 @@ namespace SS14.Launcher.Api;
 public sealed class AuthApi
 {
     private readonly HttpClient _httpClient;
+    private readonly DataManager _dataManager;
 
-    public AuthApi(HttpClient http)
+    public AuthApi(HttpClient http, DataManager dataManager)
     {
         _httpClient = http;
+        _dataManager = dataManager;
     }
 
     private static void BeforeAuthCall()
@@ -33,7 +35,7 @@ public sealed class AuthApi
         BeforeAuthCall();
         try
         {
-            var authUrl = ConfigConstants.AuthUrl + "api/auth/authenticate";
+            var authUrl = request.AuthServerInfo.GetAuthUrl();
 
             using var resp = await _httpClient.PostAsJsonAsync(authUrl, request);
 
@@ -80,14 +82,14 @@ public sealed class AuthApi
         }
     }
 
-    public async Task<RegisterResult> RegisterAsync(string username, string email, string password)
+    public async Task<RegisterResult> RegisterAsync(string username, string email, string password, AuthServerInfo authServerInfo)
     {
         BeforeAuthCall();
         try
         {
             var request = new RegisterRequest(username, email, password);
 
-            var authUrl = ConfigConstants.AuthUrl + "api/auth/register";
+            var authUrl = authServerInfo.GetRegisterUrl();
 
             using var resp = await _httpClient.PostAsJsonAsync(authUrl, request);
 
@@ -123,14 +125,14 @@ public sealed class AuthApi
     }
 
     /// <returns>Any errors that occured</returns>
-    public async Task<string[]?> ForgotPasswordAsync(string email)
+    public async Task<string[]?> ForgotPasswordAsync(string email, AuthServerInfo authServerInfo)
     {
         BeforeAuthCall();
         try
         {
             var request = new ResetPasswordRequest(email);
 
-            var authUrl = ConfigConstants.AuthUrl + "api/auth/resetPassword";
+            var authUrl = authServerInfo.GetResetPasswordUrl();
 
             using var resp = await _httpClient.PostAsJsonAsync(authUrl, request);
 
@@ -151,14 +153,14 @@ public sealed class AuthApi
         }
     }
 
-    public async Task<string[]?> ResendConfirmationAsync(string email)
+    public async Task<string[]?> ResendConfirmationAsync(string email, AuthServerInfo authServerInfo)
     {
         BeforeAuthCall();
         try
         {
             var request = new ResendConfirmationRequest(email);
 
-            var authUrl = ConfigConstants.AuthUrl + "api/auth/resendConfirmation";
+            var authUrl = authServerInfo.GetResendConfirmationUrl();
 
             using var resp = await _httpClient.PostAsJsonAsync(authUrl, request);
 
@@ -184,14 +186,14 @@ public sealed class AuthApi
     /// <exception cref="AuthApiException">
     ///     Thrown if an unexpected error occured.
     /// </exception>
-    public async Task<LoginToken?> RefreshTokenAsync(string token)
+    public async Task<LoginToken?> RefreshTokenAsync(string token, AuthServerInfo authServerInfo)
     {
         BeforeAuthCall();
         try
         {
             var request = new RefreshRequest(token);
 
-            var authUrl = ConfigConstants.AuthUrl + "api/auth/refresh";
+            var authUrl = authServerInfo.GetRefreshUrl();
 
             using var resp = await _httpClient.PostAsJsonAsync(authUrl, request);
 
@@ -228,14 +230,14 @@ public sealed class AuthApi
         }
     }
 
-    public async Task LogoutTokenAsync(string token)
+    public async Task LogoutTokenAsync(string token, AuthServerInfo authServerInfo)
     {
         BeforeAuthCall();
         try
         {
             var request = new LogoutRequest(token);
 
-            var authUrl = ConfigConstants.AuthUrl + "api/auth/logout";
+            var authUrl = authServerInfo.GetLogoutUrl();
 
             using var resp = await _httpClient.PostAsJsonAsync(authUrl, request);
 
@@ -263,12 +265,12 @@ public sealed class AuthApi
     /// <exception cref="AuthApiException">
     ///     Thrown if an unexpected error occured.
     /// </exception>
-    public async Task<bool> CheckTokenAsync(string token)
+    public async Task<bool> CheckTokenAsync(string token, AuthServerInfo authServerInfo)
     {
         BeforeAuthCall();
         try
         {
-            var authUrl = ConfigConstants.AuthUrl + "api/auth/ping";
+            var authUrl = authServerInfo.GetPingUrl();
 
             using var resp = await authUrl.SendAsync(_httpClient, url =>
             {
@@ -301,14 +303,14 @@ public sealed class AuthApi
         }
     }
 
-    public sealed record AuthenticateRequest(string? Username, Guid? UserId, string Password, string? TfaCode = null)
+    public sealed record AuthenticateRequest(string? Username, Guid? UserId, string Password, AuthServerInfo AuthServerInfo, string? TfaCode = null)
     {
-        public AuthenticateRequest(string username, string password) : this(username, null, password)
+        public AuthenticateRequest(string username, string password, AuthServerInfo authServerInfo) : this(username, null, password, authServerInfo, null)
         {
 
         }
 
-        public AuthenticateRequest(Guid userId, string password) : this(null, userId, password)
+        public AuthenticateRequest(Guid userId, string password, AuthServerInfo authServerInfo) : this(null, userId, password, authServerInfo, null)
         {
 
         }

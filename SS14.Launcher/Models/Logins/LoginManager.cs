@@ -24,7 +24,7 @@ public sealed class LoginManager : ReactiveObject
     private readonly DataManager _dataManager;
     private readonly AuthApi _authApi;
 
-    private readonly IObservableCache<ActiveLoginData, Guid> _logins;
+    private IObservableCache<ActiveLoginData, Guid> _logins;
 
     /// <summary>
     ///     <see cref="ActiveLoginData"> of the currently active
@@ -111,29 +111,20 @@ public sealed class LoginManager : ReactiveObject
         AfterActiveAccountUpdate?.Invoke(ActiveAccount);
     }
 
-    /// <summary>
-    ///     If setting a new existing active account, refreshes tokens first.
-    ///         Otherwise logs out.
-    /// </summary>
-    /// <inheritdoc cref="SetActiveAccount(LoggedInAccount?)"/>
-    public async Task TryRefreshTokensAndSetActiveAccount(LoggedInAccount? loggedInAccount)
-    {
-        if (loggedInAccount is { } &&
-            _logins.Lookup(loggedInAccount.UserId) is { } queriedActiveLoginData)
-            await RefreshTokens(queriedActiveLoginData.Value);
+    public IObservableCache<LoggedInAccount, Guid> Logins { get; private set; }
 
-        SetActiveAccount(loggedInAccount);
-    }
-
-    public IObservableCache<LoggedInAccount, Guid> Logins { get; }
-
+#pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     public LoginManager(DataManager cfg, AuthApi authApi)
+#pragma warning restore CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     {
         _dataManager = cfg;
         _dataManager.SetLoginManager(this);
 
         _authApi = authApi;
+    }
 
+    public void Initialise()
+    {
         _logins = _dataManager.Logins
             .Connect()
             .Transform(p => new ActiveLoginData(p))
@@ -228,9 +219,10 @@ public sealed class LoginManager : ReactiveObject
         }
     }
 
-    public void AddFreshLogin(LoginInfo info)
+    public void AddFreshLogin(LoginInfo info, AuthServerInfo authServerInfo)
     {
         _dataManager.AddLogin(info);
+        _dataManager.SetAccountCVar(SanabiAccountCVars.AuthServers, info.UserId, SanabiAuthManager.SerializeAuthServerDataString(authServerInfo));
 
         _logins.Lookup(info.UserId).Value.SetStatus(AccountLoginStatus.Available);
     }
@@ -250,31 +242,34 @@ public sealed class LoginManager : ReactiveObject
 
     private async Task UpdateSingleAccountStatus(ActiveLoginData data)
     {
-        Log.Warning($":!!!: AUTHAPI is being contacted with logininfo: {data.LoginInfo.Username}");
-        if (data.LoginInfo.Token.ShouldRefresh())
+        foreach (var authInfo in data.SupportedAuthServers!)
         {
-            Log.Debug("Refreshing token for {login}", data.LoginInfo);
-            // If we need to refresh the token anyways we'll just
-            // implicitly do the "is it still valid" with the refresh request.
-            var newTokenHopefully = await _authApi.RefreshTokenAsync(data.LoginInfo.Token.Token);
-            if (newTokenHopefully == null)
+            Log.Warning($":!!!: AUTHAPI is being contacted with logininfo: {data.LoginInfo.Username}");
+            if (data.LoginInfo.Token.ShouldRefresh())
             {
-                // Token expired or whatever?
-                data.SetStatus(AccountLoginStatus.Expired);
-                Log.Debug("Token for {login} expired while refreshing it", data.LoginInfo);
+                Log.Debug("Refreshing token for {login}", data.LoginInfo);
+                // If we need to refresh the token anyways we'll just
+                // implicitly do the "is it still valid" with the refresh request.
+                var newTokenHopefully = await _authApi.RefreshTokenAsync(data.LoginInfo.Token.Token, authInfo);
+                if (newTokenHopefully == null)
+                {
+                    // Token expired or whatever?
+                    data.SetStatus(AccountLoginStatus.Expired);
+                    Log.Debug("Token for {login} expired while refreshing it", data.LoginInfo);
+                }
+                else
+                {
+                    Log.Debug("Refreshed token for {login}", data.LoginInfo);
+                    data.LoginInfo.Token = newTokenHopefully.Value;
+                    data.SetStatus(AccountLoginStatus.Available);
+                }
             }
-            else
+            else if (data.Status == AccountLoginStatus.Unsure)
             {
-                Log.Debug("Refreshed token for {login}", data.LoginInfo);
-                data.LoginInfo.Token = newTokenHopefully.Value;
-                data.SetStatus(AccountLoginStatus.Available);
+                var valid = await _authApi.CheckTokenAsync(data.LoginInfo.Token.Token, authInfo);
+                Log.Debug("Token for {login} still valid? {valid}", data.LoginInfo, valid);
+                data.SetStatus(valid ? AccountLoginStatus.Available : AccountLoginStatus.Expired);
             }
-        }
-        else if (data.Status == AccountLoginStatus.Unsure)
-        {
-            var valid = await _authApi.CheckTokenAsync(data.LoginInfo.Token.Token);
-            Log.Debug("Token for {login} still valid? {valid}", data.LoginInfo, valid);
-            data.SetStatus(valid ? AccountLoginStatus.Available : AccountLoginStatus.Expired);
         }
     }
 

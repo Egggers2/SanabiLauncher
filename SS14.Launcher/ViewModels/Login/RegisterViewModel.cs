@@ -20,6 +20,7 @@ public class RegisterViewModel : BaseLoginViewModel
     [Reactive] public string EditingPassword { get; set; } = "";
     [Reactive] public string EditingPasswordConfirm { get; set; } = "";
     [Reactive] public string EditingEmail { get; set; } = "";
+    [Reactive] public string EditingPrimaryAuthServer { get; set; } = SanabiAuthManager.DefaultEnterableAuthUrl;
 
     [Reactive] public bool IsInputValid { get; private set; }
     [Reactive] public string InvalidReason { get; private set; } = " ";
@@ -102,7 +103,8 @@ public class RegisterViewModel : BaseLoginViewModel
         Busy = true;
         try
         {
-            var result = await _authApi.RegisterAsync(EditingUsername, EditingEmail, EditingPassword);
+            var authInfo = SanabiAuthManager.LazilyGetInfoFromUrl(EditingPrimaryAuthServer);
+            var result = await _authApi.RegisterAsync(EditingUsername, EditingEmail, EditingPassword, authInfo);
             if (!result.IsSuccess)
             {
                 OverlayControl = new AuthErrorsOverlayViewModel(this, "Unable to register", result.Errors);
@@ -114,7 +116,7 @@ public class RegisterViewModel : BaseLoginViewModel
             {
                 BusyText = "Logging in...";
                 // No confirmation needed, log in immediately.
-                var request = new AuthApi.AuthenticateRequest(EditingUsername, EditingPassword);
+                var request = new AuthApi.AuthenticateRequest(EditingUsername, EditingPassword, authInfo);
                 var resp = await _authApi.AuthenticateAsync(request);
 
                 await LoginViewModel.DoLogin(this, request, resp, _loginMgr, _authApi);

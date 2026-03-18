@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ReactiveUI;
 using SS14.Launcher.Models.Data;
 
@@ -17,4 +18,9 @@ public abstract class LoggedInAccount : ReactiveObject
     public LoginInfo LoginInfo { get; }
 
     public abstract AccountLoginStatus Status { get; }
+
+    /// <summary>
+    ///     List is populated only when this data instantiated.
+    /// </summary>
+    public List<AuthServerInfo>? SupportedAuthServers = null;
 }

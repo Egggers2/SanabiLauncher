@@ -237,11 +237,16 @@ internal static class Program
         Locator.CurrentMutable.RegisterConstant(http);
 
         var loc = new LocalizationManager(cfg);
-        var authApi = new AuthApi(http);
+        var authApi = new AuthApi(http, cfg);
         var hubApi = new HubApi(http);
         var launcherInfo = new LauncherInfoManager(http);
         var overrideAssets = new OverrideAssetsManager(cfg, http, launcherInfo);
+
         var loginManager = new LoginManager(cfg, authApi);
+        SanabiAuthManager.Initialize(cfg);
+        loginManager.AfterActiveAccountUpdate += SanabiAuthManager.OnAccountUpdated;
+        loginManager.Initialise();
+
         var engineManager = new EngineManagerDynamic();
 
         locator.RegisterConstant(loc);

@@ -1,5 +1,6 @@
 using SS14.Launcher.Api;
 using SS14.Launcher.Localization;
+using SS14.Launcher.Models.Data;
 
 namespace SS14.Launcher.ViewModels.Login;
 
@@ -16,7 +17,7 @@ public class AuthErrorsOverlayViewModel : ViewModelBase
         Errors = errors;
     }
 
-    public static string[] AuthCodeToErrors(string[] errors, AuthApi.AuthenticateDenyResponseCode code)
+    public static string[] AuthCodeToErrors(string[] errors, AuthApi.AuthenticateDenyResponseCode code, AuthServerInfo? serverInfo = null)
     {
         if (code == AuthApi.AuthenticateDenyResponseCode.UnknownError)
             return errors;
@@ -34,7 +35,7 @@ public class AuthErrorsOverlayViewModel : ViewModelBase
             _ => "login-error-unknown"
         };
 
-        return new[] { loc.GetString(err) };
+        return new[] { loc.GetString(err) + $"\n Problematic auth server: {serverInfo?.UrlSet.GetMostSuccessfulUrl() ?? "N/A [none specified]"}" };
     }
 
     public void Ok()

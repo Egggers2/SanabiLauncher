@@ -313,32 +313,6 @@ public sealed class MainWindowViewModel : ViewModelBase, IErrorOverlayOwner
         }
     }
 
-    private async void SCRISK_TrySelectUnsureAccount(LoggedInAccount account)
-    {
-        BusyTask = _loc.GetString("main-window-busy-checking-account-status");
-        try
-        {
-            await _loginMgr.UpdateSingleAccountStatus(account);
-
-            // Can't be unsure, that'd have thrown.
-            Debug.Assert(account.Status != AccountLoginStatus.Unsure);
-            TrySwitchToAccount(account);
-        }
-        catch (AuthApiException e)
-        {
-            Log.Warning(e, "AuthApiException while trying to refresh account {login}", account.LoginInfo);
-            OverlayViewModel = new AuthErrorsOverlayViewModel(this, _loc.GetString("main-window-error-connecting-auth-server"),
-                new[]
-                {
-                    e.InnerException?.Message ?? _loc.GetString("main-window-error-unknown")
-                });
-        }
-        finally
-        {
-            BusyTask = null;
-        }
-    }
-
     public void OverlayOk()
     {
         OverlayViewModel = null;

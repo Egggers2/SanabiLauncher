@@ -26,6 +26,7 @@ public class ExpiredLoginViewModel : BaseLoginViewModel
     }
 
     [Reactive] public string EditingPassword { get; set; } = "";
+    [Reactive] public string EditingPrimaryAuthServer { get; set; } = SanabiAuthManager.DefaultEnterableAuthUrl;
     public LoggedInAccount Account { get; }
 
     public async void OnLogInButtonPressed()
@@ -36,7 +37,7 @@ public class ExpiredLoginViewModel : BaseLoginViewModel
         Busy = true;
         try
         {
-            var request = new AuthApi.AuthenticateRequest(Account.UserId, EditingPassword);
+            var request = new AuthApi.AuthenticateRequest(Account.UserId, EditingPassword, SanabiAuthManager.LazilyGetInfoFromUrl(EditingPrimaryAuthServer));
             var resp = await _authApi.AuthenticateAsync(request);
 
             await LoginViewModel.DoLogin(this, request, resp, _loginMgr, _authApi);

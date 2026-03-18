@@ -1,6 +1,7 @@
 using ReactiveUI.Fody.Helpers;
 using SS14.Launcher.Api;
 using SS14.Launcher.Localization;
+using SS14.Launcher.Models.Data;
 
 namespace SS14.Launcher.ViewModels.Login;
 
@@ -10,6 +11,7 @@ public sealed class ForgotPasswordViewModel : BaseLoginViewModel
     private readonly LocalizationManager _loc = LocalizationManager.Instance;
 
     [Reactive] public string EditingEmail { get; set; } = "";
+    [Reactive] public string EditingPrimaryAuthServer { get; set; } = SanabiAuthManager.DefaultEnterableAuthUrl;
 
     private bool _errored;
 
@@ -30,7 +32,7 @@ public sealed class ForgotPasswordViewModel : BaseLoginViewModel
         try
         {
             BusyText = "Sending email...";
-            var errors = await _authApi.ForgotPasswordAsync(EditingEmail);
+            var errors = await _authApi.ForgotPasswordAsync(EditingEmail, SanabiAuthManager.LazilyGetInfoFromUrl(EditingPrimaryAuthServer));
 
             _errored = errors != null;
 

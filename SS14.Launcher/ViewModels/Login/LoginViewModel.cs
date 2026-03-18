@@ -6,6 +6,7 @@ using SS14.Launcher.Api;
 using SS14.Launcher.Localization;
 using SS14.Launcher.Models.Data;
 using SS14.Launcher.Models.Logins;
+using SS14.Launcher.Utility;
 
 namespace SS14.Launcher.ViewModels.Login;
 
@@ -18,6 +19,7 @@ public class LoginViewModel : BaseLoginViewModel
 
     [Reactive] public string EditingUsername { get; set; } = "";
     [Reactive] public string EditingPassword { get; set; } = "";
+    [Reactive] public string EditingPrimaryAuthServer { get; set; } = SanabiAuthManager.DefaultEnterableAuthUrl;
 
     [Reactive] public bool IsInputValid { get; private set; }
     [Reactive] public bool IsPasswordVisible { get; set; }
@@ -44,7 +46,8 @@ public class LoginViewModel : BaseLoginViewModel
         Busy = true;
         try
         {
-            var request = new AuthApi.AuthenticateRequest(EditingUsername, EditingPassword);
+            var request = new AuthApi.AuthenticateRequest(EditingUsername, EditingPassword, SanabiAuthManager.LazilyGetInfoFromUrl(EditingPrimaryAuthServer));
+
             var resp = await _authApi.AuthenticateAsync(request);
 
             await DoLogin(this, request, resp, _loginMgr, _authApi);
@@ -79,13 +82,15 @@ public class LoginViewModel : BaseLoginViewModel
                 // This also has the upside of re-available-ing the account
                 // if the user used the main login prompt on an account we already had, but as expired.
 
-                await authApi.LogoutTokenAsync(oldLogin.Value.LoginInfo.Token.Token);
+                foreach (var oldAuthServerInfo in oldLogin.Value.SupportedAuthServers!)
+                    await authApi.LogoutTokenAsync(oldLogin.Value.LoginInfo.Token.Token, oldAuthServerInfo);
+
                 await loginMgr.TryRefreshTokensAndSetActiveAccountById(loginInfo.UserId);
                 loginMgr.UpdateToNewToken(loginMgr.ActiveAccount!, loginInfo.Token);
                 return true;
             }
 
-            loginMgr.AddFreshLogin(loginInfo);
+            loginMgr.AddFreshLogin(loginInfo, request.AuthServerInfo);
             await loginMgr.TryRefreshTokensAndSetActiveAccountById(loginInfo.UserId);
             return true;
         }
@@ -96,7 +101,7 @@ public class LoginViewModel : BaseLoginViewModel
             return false;
         }
 
-        var errors = AuthErrorsOverlayViewModel.AuthCodeToErrors(resp.Errors, resp.Code);
+        var errors = AuthErrorsOverlayViewModel.AuthCodeToErrors(resp.Errors, resp.Code, request.AuthServerInfo);
         vm.OverlayControl = new AuthErrorsOverlayViewModel(vm, loc.GetString("login-login-error-title"), errors);
         return false;
     }

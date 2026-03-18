@@ -9,6 +9,13 @@ namespace Sanabi.Framework.Data;
 [UsedImplicitly]
 public static partial class SanabiAccountCVars
 {
+    public const string AuthServersDefaultSerializedNullEscapeValue = "<NO_VALUE_PLEASE_SET_DEFAULT>"; // DO NOT CHANGE EVER
+
+    /// <summary>
+    ///     Vertical-bar-separated (which is |) list of auth-server URL sets this uses, with individual fallback URLs separated by commas
+    /// </summary>
+    public static readonly CVarDef<string> AuthServers = CVarDef.Create("AuthServers", AuthServersDefaultSerializedNullEscapeValue); // intentional so authmanager can handle this bs
+
     /// <summary>
     ///     Whether to generate a new spoofing seed when setting this account as the active one.
     ///         Set to false when done.

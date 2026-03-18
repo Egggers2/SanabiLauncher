@@ -11,6 +11,7 @@ namespace SS14.Launcher.ViewModels.Login;
 
 public class RegisterNeedsConfirmationViewModel : BaseLoginViewModel
 {
+    [Reactive] public string EditingPrimaryAuthServer { get; set; } = SanabiAuthManager.DefaultEnterableAuthUrl;
     private const int TimeoutSeconds = 5;
 
     private readonly AuthApi _authApi;
@@ -81,7 +82,7 @@ public class RegisterNeedsConfirmationViewModel : BaseLoginViewModel
 
         try
         {
-            var request = new AuthApi.AuthenticateRequest(_loginUsername, _loginPassword);
+            var request = new AuthApi.AuthenticateRequest(_loginUsername, _loginPassword, SanabiAuthManager.LazilyGetInfoFromUrl(EditingPrimaryAuthServer));
             var resp = await _authApi.AuthenticateAsync(request);
 
             await LoginViewModel.DoLogin(this, request, resp, _loginMgr, _authApi);
