@@ -96,9 +96,8 @@ public static partial class AssemblyLoadingManager
             "EnsureGetAllTypesCache",
             except: true
         )!;
-
-        // danger
-        AssemblyHidingManager.OverridenCallsites.Add(ensureGetAllTypesCacheMethod);
+        // How about we NOT kill our fucking dude
+        AssemblyHidingManager.EngineOverridenCallsites.Add(ensureGetAllTypesCacheMethod);
 
         if (!TryGetExternalMods(out var modules))
             return;
