@@ -8,8 +8,7 @@ Features include:
 - Compatible with [Marseyloader](https://github.com/ValidHunters/Marseyloader) patches [(example here)](https://github.com/ValidHunters/SubversionExamplePatch)
 - - Comes with built-in patches including but not limited to:
 - - - HWId spoof patch
-    - All-commands-enabled patch
-    - Ahelp-menu-popup-disabled patch (todo: fix)
+    - Patch to replace RT's built-in fullscreen mode with a borderless-windowed mode
 - - Support for externally-loaded mod assemblies (`.dll`s, see button to open patch directory somewhere in Sanabi tab), can be selectively loaded (maximum of 64 mods in directory)
   - Support for externally-loaded resources
   - Support for all of that, compressed into a `.zip`

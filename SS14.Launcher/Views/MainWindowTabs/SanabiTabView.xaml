@@ -32,14 +32,14 @@
                    Text="Enable any kind of patching? Inherently enables engine patching."
                    Margin="8"/>
 
-        <CheckBox VerticalAlignment="Center"
+        <!-- <CheckBox VerticalAlignment="Center"
                   Margin="4"
                   IsChecked="{Binding LoadInternalMods}"
                   Content="Enable internal mods"/>
         <TextBlock VerticalAlignment="Center"
                    TextWrapping="Wrap"
                    Text="If patching is enabled, do we patch internal mods; those that come with the launcher?"
-                   Margin="8"/>
+                   Margin="8"/> -->
 
         <CheckBox VerticalAlignment="Center"
                   Margin="4"
