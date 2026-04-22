@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -50,7 +49,7 @@ internal static partial class SDL
             return h;
         }
 
-        throw new PlatformNotSupportedException();
+        throw new PlatformNotSupportedException("Your platform is too inferior for me to consider even trying to make it work here");
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

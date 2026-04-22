@@ -2,10 +2,10 @@ using System.Runtime.InteropServices;
 
 namespace Sanabi.Framework.Misc.Imports;
 
-internal static class NativeWin
+public static partial class NativeWin
 {
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-    public static extern nint GetModuleHandle(string lpModuleName);
+    [LibraryImport("kernel32.dll", EntryPoint = "GetModuleHandleW", StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial nint GetModuleHandle(string lpModuleName);
 
     public static nint? GetModuleHandleOrNullIfZero(string lpModuleName)
     {
@@ -20,12 +20,12 @@ internal static class NativeWin
 /// <summary>
 ///     TODO: Test
 /// </summary>
-internal static class NativeLinux
+public static partial class NativeLinux
 {
     public const int RTLD_NOLOAD = 4;
 
-    [DllImport("libdl.so")]
-    public static extern nint dlopen(string? fileName, int flags);
+    [LibraryImport("libdl.so.2", StringMarshalling = StringMarshalling.Utf8)]
+    internal static partial nint dlopen(string? fileName, int flags);
 
     public static nint? DlopenOrNullIfZero(string? fileName, int flags)
     {
