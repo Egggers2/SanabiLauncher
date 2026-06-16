@@ -16,7 +16,7 @@ public static class ButtonExtensions
         if (message == null)
         {
             var locMgr = Locator.Current.GetService<LocalizationManager>()!;
-            message = locMgr.GetString("button-done");
+            message = locMgr.GetString("hub-settings-button-done"); // todo lcdc: dont use hub-settings
         }
 
         var previousContent = button.Content;
