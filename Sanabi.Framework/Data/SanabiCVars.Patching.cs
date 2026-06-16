@@ -29,6 +29,11 @@ public static partial class SanabiCVars
     public static readonly CVarDef<bool> BetterFullscreenPatchEnabled = CVarDef.Create("BetterFullscreenPatchEnabled", false);
 
     /// <summary>
+    ///     Content.Client.Administration.Systems.AdminInfoSystem
+    /// </summary>
+    public static readonly CVarDef<bool> UserDataPatchEnabled = CVarDef.Create("UserDataPatchEnabled", false);
+
+    /// <summary>
     ///     Load internal patches that come with the launcher?
     /// </summary>
     public static readonly CVarDef<bool> LoadInternalMods = CVarDef.Create("LoadInternalMods", false);

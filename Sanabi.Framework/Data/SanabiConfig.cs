@@ -21,6 +21,7 @@ public record struct SanabiConfig()
 
     public bool RunHwidPatch = true;
     public bool RunBetterFullscreenPatch = true;
+    public bool RunUserDataPatch = true;
 
     public ulong HwidPatchSeed = 1ul;
 
@@ -46,7 +47,8 @@ public static class SanabiConfigExtensions
             PatchRunLevel.None;
 
         config.RunHwidPatch = dataManager.GetCVar(SanabiCVars.HwidPatchEnabled);
-        config.RunHwidPatch = dataManager.GetCVar(SanabiCVars.BetterFullscreenPatchEnabled);
+        config.RunBetterFullscreenPatch = dataManager.GetCVar(SanabiCVars.BetterFullscreenPatchEnabled);
+        config.RunUserDataPatch = dataManager.GetCVar(SanabiCVars.UserDataPatchEnabled);
         config.HwidPatchSeed = BitConverter.ToUInt64(BitConverter.GetBytes(dataManager.GetActiveAccountCVarOrDefault(SanabiAccountCVars.SpoofingSeed)), 0);
         config.LoadInternalMods = dataManager.GetCVar(SanabiCVars.LoadInternalMods);
         config.LoadExternalMods = dataManager.GetCVar(SanabiCVars.LoadExternalMods);

@@ -26,7 +26,6 @@ public static class BetterFullscreenPatch
     private static readonly Type Sdl3WindowReg = ReflectionManager.GetTypeByQualifiedName("Robust.Client.Graphics.Clyde.Clyde+Sdl3WindowingImpl+Sdl3WindowReg", except: true);
     private static readonly Type WindowRegType = ReflectionManager.GetTypeByQualifiedName("Robust.Client.Graphics.Clyde.Clyde+WindowReg", except: true);
 
-
     [PatchEntry(PatchRunLevel.Engine)]
     public static void Patch()
     {

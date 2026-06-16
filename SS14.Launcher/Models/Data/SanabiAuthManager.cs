@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using DynamicData;
 using Sanabi.Framework.Data;
 using SS14.Launcher.Models.Logins;
 using SS14.Launcher.Utility;

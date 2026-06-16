@@ -5,10 +5,6 @@ using System.Runtime.InteropServices;
 
 namespace Sanabi.Framework.Game.Managers;
 
-/// <summary>
-///     Static container for a <see cref="HarmonyContainer"/>, which
-///         itself is just a wrapper for a <see cref="Harmony"/>.
-/// </summary>
 public static class AssemblyManager
 {
     /// <summary>
@@ -130,11 +126,12 @@ public static class AssemblyManager
 
             foreach (var necessaryAssemblyName in _necessaryAssemblyNames)
             {
-                if (name.Contains(necessaryAssemblyName) == true)
-                {
-                    Assemblies[necessaryAssemblyName] = assembly;
-                    Console.WriteLine($"Assembly-Mng-BruteForce-Found: {necessaryAssemblyName}");
-                }
+                // Dont do Contains; Robust.Shared.Maths shouldn't count for Robust.Shared
+                if (name != necessaryAssemblyName)
+                    continue;
+
+                Assemblies[necessaryAssemblyName] = assembly;
+                Console.WriteLine($"Assembly-Mng-BruteForce-Found: {necessaryAssemblyName}");
             }
         }
 

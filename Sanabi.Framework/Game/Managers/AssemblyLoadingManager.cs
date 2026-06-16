@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using HarmonyLib;
 using Sanabi.Framework.Data;
 using Sanabi.Framework.Game.Patches;
+using Sanabi.Framework.Game.Utility;
 using Sanabi.Framework.Misc;
 using Sanabi.Framework.Patching;
 using SS14.Launcher;
@@ -54,7 +55,7 @@ public static partial class AssemblyLoadingManager
         // `public Sawmill(Sawmill? parent, string name)`, although sawmill impl type is nullable, its notnullable here
         _universalLoaderSawmill = PatchHelpers.GetConstructorAndMakeInstance(sawmillImplType, [sawmillImplType, typeof(string)], [null, new Guid().ToString()]);
 
-        _resPathRootValue = PatchHelpers.GetConstructorAndMakeInstance("Robust.Shared.Utility.ResPath", [typeof(string)], ["/"]);
+        _resPathRootValue = ResPathFactory.Construct("/");
 
         var sawmillInterfaceType = ReflectionManager.GetTypeByQualifiedName("Robust.Shared.Log.ISawmill", except: true)!;
 

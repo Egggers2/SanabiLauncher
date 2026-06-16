@@ -43,6 +43,13 @@ public static partial class PatchHelpers
     }
 
     /// <summary>
+    ///      Assumes the constructor exists, otherwise throws.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static ConstructorInfo GetConstructor(Type type, Type[] parameterTypes)
+        => type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly, parameterTypes)!;
+
+    /// <summary>
     ///     Takes constructor parameter-types and parameters and invokes them
     ///         to create an instance of the thing being constructed.
     ///
@@ -50,10 +57,7 @@ public static partial class PatchHelpers
     /// </summary>
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static dynamic GetConstructorAndMakeInstance(Type type, Type[] parameterTypes, object?[]? parameters)
-    {
-        var constructorInfo = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly, parameterTypes);
-        return constructorInfo!.Invoke(parameters);
-    }
+        => GetConstructor(type, parameterTypes).Invoke(parameters);
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static MethodInfo? GetMethod(Type? type, string methodName, Type[]? parameters = null, bool except = false)
@@ -159,11 +163,11 @@ public static partial class PatchHelpers
 
     /// <summary>
     ///     Tries to get a method on a type, by it's name
-    ///         and parameters.
+    ///         and parameters. Will throw if method isnt found.
     /// </summary>
     /// <returns>Null if no method was found.</returns>
     // TODO: Logs
-    private static MethodInfo? ResolveMethod(Type? type, string methodName, Type[]? methodParameters)
+    public static MethodInfo? ResolveMethod(Type? type, string methodName, Type[]? methodParameters = null)
         => GetMethod(type, methodName, methodParameters, except: true);
 
     /// <summary>

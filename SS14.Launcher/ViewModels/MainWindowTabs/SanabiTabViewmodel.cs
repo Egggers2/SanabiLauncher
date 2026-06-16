@@ -88,6 +88,12 @@ public class SanabiTabViewModel : MainWindowTabViewModel
         set => SetAndCommitCvar(SanabiCVars.HwidPatchEnabled, value);
     }
 
+    public bool UserDataPatchEnabled
+    {
+        get => Cfg.GetCVar(SanabiCVars.UserDataPatchEnabled);
+        set => SetAndCommitCvar(SanabiCVars.UserDataPatchEnabled, value);
+    }
+
     public bool BetterFullscreenPatchEnabled
     {
         get => Cfg.GetCVar(SanabiCVars.BetterFullscreenPatchEnabled);
@@ -207,6 +213,15 @@ public class SanabiTabViewModel : MainWindowTabViewModel
     {
         get => Cfg.GetCVar(SanabiCVars.WaitForDebugger);
         set => SetAndCommitCvar(SanabiCVars.WaitForDebugger, value);
+    }
+
+    public static void OpenLauncherDataDirectory()
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = LauncherPaths.DirUserData
+        });
     }
 
     /// <summary>
