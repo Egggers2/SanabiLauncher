@@ -35,7 +35,7 @@ public class AuthErrorsOverlayViewModel : ViewModelBase
             _ => "login-error-unknown"
         };
 
-        return new[] { loc.GetString(err) + $"\n Problematic auth server: {serverInfo?.UrlSet.GetMostSuccessfulUrl() ?? "N/A [none specified]"}" };
+        return [loc.GetString(err) + $"\n\n Problematic auth server: {serverInfo?.UrlSet.GetMostSuccessfulUrl() ?? "N/A [none specified]"}"];
     }
 
     public void Ok()

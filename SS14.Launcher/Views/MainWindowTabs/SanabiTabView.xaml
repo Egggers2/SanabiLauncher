@@ -68,16 +68,16 @@
                   Content="Borderless windowed as fullscreen patch"/>
         <TextBlock VerticalAlignment="Center"
                    TextWrapping="Wrap"
-                   Text="Patches out RT's implementation of fullscreen and converts it to be borderless windowed. Only applies if engine patching is enabled. May fix your screen flickering when moving out of focus. Might only work on Windows, make a bug report if it doesn't."
+                   Text="Patches out RT's implementation of fullscreen and converts it to be borderless windowed. Only applies if engine patching is enabled. May fix your screen flickering when moving out of focus. Buggy on non-Windows systems."
                    Margin="8"/>
 
         <CheckBox VerticalAlignment="Center"
                   Margin="4"
                   IsChecked="{Binding UserDataPatchEnabled}"
-                  Content="Stealthy UserData"/>
+                  Content="UserData Virtualisation"/>
         <TextBlock VerticalAlignment="Center"
                    TextWrapping="Wrap"
-                   Text="SS14 client-side server content has read+write access to a UserData directory, which can be used to save data across sessions. This feature can also be used against *you*. Enabling this will prevent writes to this directory from being saved to the disk, however reads can still happen. This feature is still WIP and may break your game in some ways; if you have cleared your userdata try connecting first without this enabled, so that files are ok."
+                   Text="Why? SS14 client-side server content has read+write access to a UserData directory, which can be used to save data across sessions, and also be used against *you*. Enabling this will prevent writes to this directory from being saved to the disk, however reads can still happen. This can break some things if they havent been saved to disk yet, like parallax caches."
                    Margin="8"/>
 
         <Separator Classes="horizontal"
@@ -274,7 +274,6 @@
                 HorizontalAlignment="Center"
                 Command="{Binding OpenLauncherDataDirectory}"
                 Margin="0,10,0,5"/>
-
       </StackPanel>
     </DockPanel>
   </ScrollViewer>

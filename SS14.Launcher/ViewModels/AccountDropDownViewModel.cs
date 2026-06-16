@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using DynamicData;
 using JetBrains.Annotations;
 using ReactiveUI;
@@ -118,7 +119,6 @@ public class AccountDropDownViewModel : ViewModelBase
 
         IsDropDownOpen = false;
         _mainVm.TrySwitchToAccount(loggedInAccount);
-        _mainVm.SetLoginMenuShowing(false);
     }
 
     public void AddAccountPressed()
@@ -127,6 +127,15 @@ public class AccountDropDownViewModel : ViewModelBase
 
         _loginMgr.SetActiveAccount(null);
         _mainVm.SetLoginMenuShowing(true);
+    }
+
+    public async void RefreshAllTokensPressed()
+    {
+        IsDropDownOpen = false;
+
+        _mainVm.BusyTask = "Refreshing all tokens...";
+        await _loginMgr.RefreshAllTokens();
+        _mainVm.BusyTask = null;
     }
 }
 

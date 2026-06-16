@@ -7,6 +7,7 @@ using SS14.Launcher.Localization;
 using SS14.Launcher.Models.Data;
 using SS14.Launcher.Models.Logins;
 using SS14.Launcher.Utility;
+using TerraFX.Interop.Windows;
 
 namespace SS14.Launcher.ViewModels.Login;
 
@@ -108,6 +109,10 @@ public class LoginViewModel : BaseLoginViewModel
 
     public void RegisterPressed()
     {
+        // TODO LCDC: REGISTRATION
+        // // WASABI
+        // ParentVM.SwitchToRegister();
+
         // Registration is purely via website now, sorry.
         Helpers.OpenUri(ConfigConstants.AccountRegisterUrl);
     }

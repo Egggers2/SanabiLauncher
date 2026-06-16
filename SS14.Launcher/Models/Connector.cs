@@ -347,7 +347,12 @@ public partial class Connector : ReactiveObject
 
         if (info != null && info.AuthInformation.Mode != AuthMode.Disabled && _loginManager.ActiveAccount is { } account)
         {
-            await _loginManager.UpdateSingleAccountStatus(account);
+            var accStatus = await _loginManager.UpdateSingleAccountStatus(account);
+            if (accStatus == AccountLoginStatus.Expired)
+            {
+                _loginManager.SetActiveAccount(null);
+                throw new Exception("Account login status is expired, grim");
+            }
 
             cVars.Add(("ROBUST_AUTH_TOKEN", account.LoginInfo.Token.Token));
             cVars.Add(("ROBUST_AUTH_USERID", account.LoginInfo.UserId.ToString()));

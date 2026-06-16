@@ -170,6 +170,8 @@ public sealed class LoginManager : ReactiveObject
 
             try
             {
+                // Initialise cvars for account if not already
+                _dataManager.AssignAccountCVars([l.UserId], typeof(SanabiAccountCVars), overwrite: false);
                 await UpdateSingleAccountStatus(l);
             }
             catch (AuthApiException e)
@@ -222,6 +224,8 @@ public sealed class LoginManager : ReactiveObject
     public void AddFreshLogin(LoginInfo info, AuthServerInfo authServerInfo)
     {
         _dataManager.AddLogin(info);
+
+        _dataManager.AssignAccountCVars([info.UserId], typeof(SanabiAccountCVars), overwrite: false);
         _dataManager.SetAccountCVar(SanabiAccountCVars.AuthServers, info.UserId, SanabiAuthManager.SerializeAuthServerDataString(authServerInfo));
 
         _logins.Lookup(info.UserId).Value.SetStatus(AccountLoginStatus.Available);
@@ -235,13 +239,17 @@ public sealed class LoginManager : ReactiveObject
     }
 
     /// <exception cref="AuthApiException">Thrown if an API error occured.</exception>
-    public Task UpdateSingleAccountStatus(LoggedInAccount account)
+    public Task<AccountLoginStatus> UpdateSingleAccountStatus(LoggedInAccount account)
     {
         return UpdateSingleAccountStatus((ActiveLoginData)account);
     }
 
-    private async Task UpdateSingleAccountStatus(ActiveLoginData data)
+    private async Task<AccountLoginStatus> UpdateSingleAccountStatus(ActiveLoginData data)
     {
+        // Update auth servers if needed
+        if (data.SupportedAuthServers is not { })
+            SanabiAuthManager.OnAccountUpdated(data);
+
         foreach (var authInfo in data.SupportedAuthServers!)
         {
             Log.Warning($":!!!: AUTHAPI is being contacted with logininfo: {data.LoginInfo.Username}");
@@ -256,6 +264,7 @@ public sealed class LoginManager : ReactiveObject
                     // Token expired or whatever?
                     data.SetStatus(AccountLoginStatus.Expired);
                     Log.Debug("Token for {login} expired while refreshing it", data.LoginInfo);
+
                 }
                 else
                 {
@@ -271,6 +280,8 @@ public sealed class LoginManager : ReactiveObject
                 data.SetStatus(valid ? AccountLoginStatus.Available : AccountLoginStatus.Expired);
             }
         }
+
+        return data.Status;
     }
 
     public sealed class ActiveLoginData : LoggedInAccount

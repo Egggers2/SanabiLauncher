@@ -112,8 +112,12 @@ public sealed class MainWindowViewModel : ViewModelBase, IErrorOverlayOwner
             TrySwitchToAccount(loginData);
         }
 
-        _loginMgr.AfterActiveAccountUpdate += (_) =>
+        _loginMgr.AfterActiveAccountUpdate += (acc) =>
         {
+            if (acc is { } &&
+                !acc.ShouldShowLoginUponSwitching())
+                return;
+
             SelectedIndex = 0;
             SetLoginMenuShowing(false);
         };
@@ -147,7 +151,7 @@ public sealed class MainWindowViewModel : ViewModelBase, IErrorOverlayOwner
         BusyTask = null;
     }
 
-    public void SetLoginMenuShowing(bool value)
+    public void SetLoginMenuShowing(bool value, bool switchViewmodelToLogin = true)
     {
         if (!value && !_didStartingInit)
             SCRISK_DoStartingInitialisation();
@@ -158,7 +162,9 @@ public sealed class MainWindowViewModel : ViewModelBase, IErrorOverlayOwner
         if (value)
         {
             RunDeselectedOnTab();
-            LoginViewModel.SwitchToLogin();
+
+            if (switchViewmodelToLogin)
+                LoginViewModel.SwitchToLogin();
         }
         else
             // "Switch" to main window.
@@ -186,7 +192,7 @@ public sealed class MainWindowViewModel : ViewModelBase, IErrorOverlayOwner
 
     [Reactive] public ConnectingViewModel? ConnectingVM { get; set; }
 
-    [Reactive] public string? BusyTask { get; private set; }
+    [Reactive] public string? BusyTask { get; set; }
     [Reactive] public ViewModelBase? OverlayViewModel { get; private set; }
 
     public int SelectedIndex
@@ -310,6 +316,12 @@ public sealed class MainWindowViewModel : ViewModelBase, IErrorOverlayOwner
                 _loginMgr.SetActiveAccount(null);
                 LoginViewModel.SwitchToExpiredLogin(account);
                 break;
+        }
+
+        if (account.ShouldShowLoginUponSwitching())
+        {
+            SetLoginMenuShowing(true);
+            LoginViewModel.SwitchToExpiredLogin(account);
         }
     }
 

@@ -23,4 +23,6 @@ public abstract class LoggedInAccount : ReactiveObject
     ///     List is populated only when this data instantiated.
     /// </summary>
     public List<AuthServerInfo>? SupportedAuthServers = null;
+
+    public bool ShouldShowLoginUponSwitching() => Status == AccountLoginStatus.Expired;
 }

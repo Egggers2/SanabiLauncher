@@ -36,6 +36,9 @@
                 IsVisible="{Binding EnableMultiAccounts}"
                 Command="{Binding AddAccountPressed}"
                 Margin="4"/>
+        <Button Content="Refresh all account tokens"
+                Command="{Binding RefreshAllTokensPressed}"
+                Margin="4"/>
 
         <StackPanel Orientation="Vertical"
                     IsVisible="{Binding AccountSwitchVisible}">
